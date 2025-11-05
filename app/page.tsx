@@ -4,32 +4,9 @@ import { FormEvent, useMemo, useState } from "react";
 
 const DEFAULT_NAMES = ["Alice", "Brandon", "Charlotte", "Dylan"];
 
-type ArcDatum = {
-  entry: string;
-  id: string;
-  path: string;
-};
-
-function getLabelFontSize(count: number): string {
-  if (count <= 4) return "1.35rem";
-  if (count <= 6) return "1.18rem";
-  if (count <= 10) return "1rem";
-  if (count <= 16) return "0.85rem";
-  if (count <= 24) return "0.72rem";
-  return "0.62rem";
-}
-
 function getSegmentColor(index: number): string {
   const hue = Math.round((index * 137.508) % 360);
   return `hsl(${hue} 85% 55%)`;
-}
-
-function polarToCartesian(angle: number, radius: number) {
-  const radians = ((angle - 90) * Math.PI) / 180;
-  return {
-    x: 100 + radius * Math.cos(radians),
-    y: 100 + radius * Math.sin(radians)
-  };
 }
 
 function buildWheelGradient(entries: string[]): string {
@@ -57,39 +34,6 @@ export default function HomePage() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const gradient = useMemo(() => buildWheelGradient(entries), [entries]);
-  const labelFontSize = getLabelFontSize(entries.length);
-
-  const arcData = useMemo<ArcDatum[]>(() => {
-    if (entries.length === 0) {
-      return [];
-    }
-
-    const sliceAngle = 360 / entries.length;
-    const arcRadius = 74;
-
-    return entries.map((entry, index) => {
-      const startAngle = index * sliceAngle;
-      const endAngle = startAngle + sliceAngle - 0.0001;
-      const midAngle = startAngle + sliceAngle / 2;
-      const needsFlip = midAngle > 90 && midAngle < 270;
-      const largeArcFlag = sliceAngle > 180 ? 1 : 0;
-
-      const startPoint = polarToCartesian(startAngle, arcRadius);
-      const endPoint = polarToCartesian(endAngle, arcRadius);
-
-      const movePoint = needsFlip ? endPoint : startPoint;
-      const arcPoint = needsFlip ? startPoint : endPoint;
-      const sweepFlag = needsFlip ? 0 : 1;
-
-      const path = `M ${movePoint.x.toFixed(3)} ${movePoint.y.toFixed(3)} A ${arcRadius} ${arcRadius} 0 ${largeArcFlag} ${sweepFlag} ${arcPoint.x.toFixed(3)} ${arcPoint.y.toFixed(3)}`;
-
-      return {
-        entry,
-        id: `wheel-arc-${index}`,
-        path
-      };
-    });
-  }, [entries]);
 
   const handleAddSingle = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -231,25 +175,6 @@ export default function HomePage() {
               transform: `rotate(${rotation}deg)`
             }}
           >
-            {arcData.length > 0 && (
-              <svg className="wheel-overlay" viewBox="0 0 200 200" aria-hidden>
-                {arcData.map(({ entry, id, path }) => (
-                  <g key={id}>
-                    <path id={id} d={path} className="wheel-arc" />
-                    <text
-                      className="wheel-text"
-                      dominantBaseline="middle"
-                      textAnchor="middle"
-                      style={{ fontSize: labelFontSize }}
-                    >
-                      <textPath href={`#${id}`} startOffset="50%">
-                        {entry}
-                      </textPath>
-                    </text>
-                  </g>
-                ))}
-              </svg>
-            )}
             <div className="wheel-center">Spin</div>
           </div>
         </div>
