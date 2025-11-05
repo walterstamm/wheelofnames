@@ -89,8 +89,12 @@ export default function HomePage() {
     }
 
     const turns = 5 + Math.random() * 4;
+    const slice = 360 / entries.length;
+    const winnerIndex = Math.floor(Math.random() * entries.length);
+    const pointerAngle = 90; // Pointer is positioned on the right side of the wheel
+    const winnerAngle = winnerIndex * slice + slice / 2;
     const additionalRotation = turns * 360;
-    const targetRotation = rotation - additionalRotation;
+    const targetRotation = rotation - additionalRotation + (pointerAngle - winnerAngle);
 
     setIsSpinning(true);
     setSelectedIndex(null);
@@ -99,20 +103,9 @@ export default function HomePage() {
 
     const durationMs = 4500;
     window.setTimeout(() => {
-      // Normalizamos la rotación final
-      const normalizedRotation = ((targetRotation % 360) + 360) % 360;
-      
-      // El puntero está a la derecha (90 grados desde arriba, o 0 grados en términos de círculo)
-      // Necesitamos ver qué segmento está en la posición de 90 grados
-      // Como giramos en sentido antihorario (negativo), restamos la rotación
-      const pointerPosition = (90 - normalizedRotation + 360) % 360;
-      
-      const slice = 360 / entries.length;
-      const winner = Math.floor(pointerPosition / slice) % entries.length;
-      
-      setSelectedIndex(winner);
+      setSelectedIndex(winnerIndex);
       setIsSpinning(false);
-      
+
       setTimeout(() => {
         setShowWinnerModal(true);
       }, 500);
