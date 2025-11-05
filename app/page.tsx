@@ -37,7 +37,6 @@ export default function HomePage() {
 
   const gradient = useMemo(() => buildWheelGradient(entries), [entries]);
   const sliceAngle = useMemo(() => (entries.length > 0 ? 360 / entries.length : 0), [entries.length]);
-  const baseAngleOffset = -90;
 
   const handleAddSingle = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -100,7 +99,7 @@ export default function HomePage() {
     setIsSpinning(true);
     setSelectedIndex(null);
     setShowWinnerModal(false);
-    setRotation((prevRotation) => prevRotation - additionalRotation + (pointerAngle - winnerAngle));
+    setRotation(targetRotation);
 
     const durationMs = 4500;
     window.setTimeout(() => {
@@ -208,7 +207,7 @@ export default function HomePage() {
           >
             <div className="wheel-segments" aria-hidden>
               {entries.map((entry, index) => {
-                const centerAngle = baseAngleOffset + index * sliceAngle + sliceAngle / 2;
+                const centerAngle = index * sliceAngle + sliceAngle / 2;
                 return (
                   <div
                     key={entry}
