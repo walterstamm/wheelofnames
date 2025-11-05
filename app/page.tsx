@@ -92,9 +92,10 @@ export default function HomePage() {
     const turns = 5 + Math.random() * 4;
     const slice = 360 / entries.length;
     const winnerIndex = Math.floor(Math.random() * entries.length);
-    const pointerAngle = 0; // Pointer is positioned on the right side of the wheel (0° reference)
-    const winnerAngle = baseAngleOffset + (winnerIndex + 0.5) * slice;
+    const pointerAngle = 90; // Pointer is positioned on the right side of the wheel
+    const winnerAngle = winnerIndex * slice + slice / 2;
     const additionalRotation = turns * 360;
+    const targetRotation = rotation - additionalRotation + (pointerAngle - winnerAngle);
 
     setIsSpinning(true);
     setSelectedIndex(null);
