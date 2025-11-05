@@ -32,6 +32,8 @@ export default function HomePage() {
   const [rotation, setRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showWinnerModal, setShowWinnerModal] = useState(false);
 
   const gradient = useMemo(() => buildWheelGradient(entries), [entries]);
   const sliceAngle = useMemo(() => (entries.length > 0 ? 360 / entries.length : 0), [entries.length]);
@@ -88,25 +90,47 @@ export default function HomePage() {
 
     const turns = 5 + Math.random() * 4;
     const additionalRotation = turns * 360;
-    const targetRotation = rotation + additionalRotation;
+    const targetRotation = rotation - additionalRotation;
 
     setIsSpinning(true);
     setSelectedIndex(null);
+    setShowWinnerModal(false);
     setRotation(targetRotation);
 
     const durationMs = 4500;
     window.setTimeout(() => {
-      const normalized = ((targetRotation % 360) + 360) % 360;
+      // Normalizamos la rotación final
+      const normalizedRotation = ((targetRotation % 360) + 360) % 360;
+      
+      // El puntero está a la derecha (90 grados desde arriba, o 0 grados en términos de círculo)
+      // Necesitamos ver qué segmento está en la posición de 90 grados
+      // Como giramos en sentido antihorario (negativo), restamos la rotación
+      const pointerPosition = (90 - normalizedRotation + 360) % 360;
+      
       const slice = 360 / entries.length;
-      const winningAngle = (360 - normalized + 360) % 360;
-      const winner = Math.floor(winningAngle / slice) % entries.length;
+      const winner = Math.floor(pointerPosition / slice) % entries.length;
+      
       setSelectedIndex(winner);
       setIsSpinning(false);
+      
+      setTimeout(() => {
+        setShowWinnerModal(true);
+      }, 500);
     }, durationMs);
   };
 
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
+  const closeModal = () => {
+    setShowWinnerModal(false);
+  };
+
   return (
-    <main className="page">
+    <>
+    <main className={`page ${isFullscreen ? 'fullscreen-mode' : ''}`}>
+      {!isFullscreen && (
       <section className="left-panel">
         <header>
           <h1>Cumorah Wheel</h1>
@@ -165,10 +189,22 @@ export default function HomePage() {
           )}
         </div>
       </section>
+      )}
 
-      <section className="wheel-panel">
+      <section className={`wheel-panel ${isFullscreen ? 'fullscreen-wheel' : ''}`}>
+        {!isFullscreen && (
+          <button 
+            className="fullscreen-toggle" 
+            onClick={toggleFullscreen}
+            type="button"
+            title="Enter fullscreen"
+          >
+            ⛶
+          </button>
+        )}
+        
         <div className="wheel-wrapper">
-          <div className="pointer" aria-hidden />
+          <div className="pointer-right" aria-hidden />
           <div
             className="wheel"
             style={{
@@ -183,35 +219,70 @@ export default function HomePage() {
                   <div
                     key={entry}
                     className="wheel-segment"
-                    style={{ transform: `translate(-50%, -50%) rotate(${centerAngle}deg)` }}
+                    style={{ 
+                      transform: `rotate(${centerAngle}deg)`
+                    }}
                   >
-                    <span className="wheel-label" style={{ transform: `rotate(${-centerAngle}deg)` }}>
+                    <span 
+                      className="wheel-label"
+                    >
                       {entry}
                     </span>
                   </div>
                 );
               })}
             </div>
-            <button
-              type="button"
-              className="wheel-center"
-              onClick={handleSpin}
-              disabled={entries.length === 0 || isSpinning}
-            >
-              {isSpinning ? "..." : "Spin"}
-            </button>
           </div>
+          <button
+            type="button"
+            className="wheel-center"
+            onClick={handleSpin}
+            disabled={entries.length === 0 || isSpinning}
+          >
+            {isSpinning ? "..." : "Spin"}
+          </button>
         </div>
-        <button className="spin-button" type="button" onClick={handleSpin} disabled={entries.length === 0 || isSpinning}>
-          {isSpinning ? "Spinning..." : "Spin!"}
-        </button>
-        {selectedIndex !== null && entries[selectedIndex] && (
-          <div className="result" role="status">
-            <span>Winner:</span>
-            <strong>{entries[selectedIndex]}</strong>
-          </div>
+        
+        {isFullscreen && (
+          <button 
+            className="fullscreen-exit" 
+            onClick={toggleFullscreen}
+            type="button"
+            title="Exit fullscreen"
+          >
+            Exit Fullscreen
+          </button>
+        )}
+        
+        {!isFullscreen && (
+          <>
+            <button className="spin-button" type="button" onClick={handleSpin} disabled={entries.length === 0 || isSpinning}>
+              {isSpinning ? "Spinning..." : "Spin!"}
+            </button>
+            {selectedIndex !== null && entries[selectedIndex] && (
+              <div className="result" role="status">
+                <span>Winner:</span>
+                <strong>{entries[selectedIndex]}</strong>
+              </div>
+            )}
+          </>
         )}
       </section>
     </main>
+
+    {showWinnerModal && selectedIndex !== null && entries[selectedIndex] && (
+      <div className="modal-overlay" onClick={closeModal}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <button className="modal-close" onClick={closeModal} type="button">✕</button>
+          <div className="modal-icon">🎉</div>
+          <h2 className="modal-title">Winner!</h2>
+          <div className="modal-winner">{entries[selectedIndex]}</div>
+          <button className="modal-button" onClick={closeModal} type="button">
+            Close
+          </button>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
