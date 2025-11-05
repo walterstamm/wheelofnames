@@ -2,7 +2,12 @@
 
 import { FormEvent, useMemo, useState } from "react";
 
-const DEFAULT_NAMES = ["Ana", "Bruno", "Carla", "Diego"];
+const DEFAULT_NAMES = ["Alice", "Brandon", "Charlotte", "Dylan"];
+
+function getSegmentColor(index: number): string {
+  const hue = Math.round((index * 137.508) % 360);
+  return `hsl(${hue} 85% 55%)`;
+}
 
 function buildWheelGradient(entries: string[]): string {
   if (entries.length === 0) {
@@ -13,8 +18,8 @@ function buildWheelGradient(entries: string[]): string {
   const segments = entries.map((_, index) => {
     const start = index * slice;
     const end = (index + 1) * slice;
-    const hue = Math.round((index * 137.508) % 360);
-    return `hsl(${hue} 85% 55%) ${start}deg ${end}deg`;
+    const color = getSegmentColor(index);
+    return `${color} ${start}deg ${end}deg`;
   });
 
   return `conic-gradient(from -90deg, ${segments.join(", ")})`;
@@ -104,51 +109,54 @@ export default function HomePage() {
       <section className="left-panel">
         <header>
           <h1>Cumorah Wheel</h1>
-          <p>Agregá nombres, girá la ruleta y elegí a la persona ganadora.</p>
+          <p>Add participants, spin the wheel, and pick a winner.</p>
         </header>
 
         <form className="add-form" onSubmit={handleAddSingle}>
-          <label htmlFor="nameInput">Agregar nombre individual</label>
+          <label htmlFor="nameInput">Add a single participant</label>
           <div className="field-row">
             <input
               id="nameInput"
               value={nameInput}
-              placeholder="Ej. María"
+              placeholder="e.g. Taylor"
               onChange={(event) => setNameInput(event.target.value)}
               disabled={isSpinning}
             />
             <button type="submit" disabled={!nameInput.trim() || isSpinning}>
-              Agregar
+              Add
             </button>
           </div>
         </form>
 
         <div className="import-box">
-          <label htmlFor="bulkInput">Cargar múltiples nombres</label>
+          <label htmlFor="bulkInput">Import multiple participants</label>
           <textarea
             id="bulkInput"
             value={bulkInput}
             rows={4}
-            placeholder={"Juan\nMaría\nPedro"}
+            placeholder={"Taylor\nMorgan\nKai"}
             onChange={(event) => setBulkInput(event.target.value)}
             disabled={isSpinning}
           />
           <button type="button" onClick={handleBulkImport} disabled={bulkInput.trim().length === 0 || isSpinning}>
-            Importar lista
+            Import list
           </button>
         </div>
 
         <div className="entries">
-          <h2>Participantes ({entries.length})</h2>
+          <h2>Participants ({entries.length})</h2>
           {entries.length === 0 ? (
-            <p className="empty">Todavía no hay nombres. Agregá algunos para comenzar.</p>
+            <p className="empty">No names yet. Add a few to get started.</p>
           ) : (
             <ul>
-              {entries.map((entry) => (
+              {entries.map((entry, index) => (
                 <li key={entry}>
-                  <span>{entry}</span>
+                  <span className="entry-info">
+                    <span className="color-dot" style={{ backgroundColor: getSegmentColor(index) }} aria-hidden />
+                    <span>{entry}</span>
+                  </span>
                   <button type="button" onClick={() => handleRemove(entry)} disabled={isSpinning}>
-                    Quitar
+                    Remove
                   </button>
                 </li>
               ))}
@@ -167,15 +175,15 @@ export default function HomePage() {
               transform: `rotate(${rotation}deg)`
             }}
           >
-            <div className="wheel-center">Girar</div>
+            <div className="wheel-center">Spin</div>
           </div>
         </div>
         <button className="spin-button" type="button" onClick={handleSpin} disabled={entries.length === 0 || isSpinning}>
-          {isSpinning ? "Girando..." : "¡Girar!"}
+          {isSpinning ? "Spinning..." : "Spin!"}
         </button>
         {selectedIndex !== null && entries[selectedIndex] && (
           <div className="result" role="status">
-            <span>Ganador:</span>
+            <span>Winner:</span>
             <strong>{entries[selectedIndex]}</strong>
           </div>
         )}
