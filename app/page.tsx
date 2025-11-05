@@ -34,6 +34,7 @@ export default function HomePage() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const gradient = useMemo(() => buildWheelGradient(entries), [entries]);
+  const sliceAngle = useMemo(() => (entries.length > 0 ? 360 / entries.length : 0), [entries.length]);
 
   const handleAddSingle = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -175,7 +176,33 @@ export default function HomePage() {
               transform: `rotate(${rotation}deg)`
             }}
           >
-            <div className="wheel-center">Spin</div>
+            <div className="wheel-segments" aria-hidden>
+              {entries.map((entry, index) => {
+                const centerAngle = index * sliceAngle + sliceAngle / 2;
+                return (
+                  <div
+                    key={entry}
+                    className="wheel-segment"
+                    style={{ transform: `translate(-50%, -50%) rotate(${centerAngle}deg)` }}
+                  >
+                    <span
+                      className="wheel-label"
+                      style={{ transform: `rotate(${-centerAngle}deg)` }}
+                    >
+                      {entry}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              className="wheel-center"
+              onClick={handleSpin}
+              disabled={entries.length === 0 || isSpinning}
+            >
+              {isSpinning ? "..." : "Spin"}
+            </button>
           </div>
         </div>
         <button className="spin-button" type="button" onClick={handleSpin} disabled={entries.length === 0 || isSpinning}>
