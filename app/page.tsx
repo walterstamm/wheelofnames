@@ -175,29 +175,6 @@ export default function HomePage() {
               transform: `rotate(${rotation}deg)`
             }}
           >
-            {entries.length > 0 && (
-              <div className="wheel-labels" aria-hidden>
-                {entries.map((entry, index) => {
-                  const slice = 360 / entries.length;
-                  const angle = -90 + index * slice + slice / 2;
-                  const color = getSegmentColor(index);
-                  return (
-                    <span
-                      key={entry}
-                      className="wheel-label"
-                      style={{ transform: `rotate(${angle}deg)` }}
-                    >
-                      <span
-                        className="wheel-label-text"
-                        style={{ borderColor: color }}
-                      >
-                        {entry}
-                      </span>
-                    </span>
-                  );
-                })}
-              </div>
-            )}
             <div className="wheel-center">Spin</div>
           </div>
         </div>
