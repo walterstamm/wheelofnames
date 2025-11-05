@@ -37,6 +37,7 @@ export default function HomePage() {
 
   const gradient = useMemo(() => buildWheelGradient(entries), [entries]);
   const sliceAngle = useMemo(() => (entries.length > 0 ? 360 / entries.length : 0), [entries.length]);
+  const baseAngleOffset = -90;
 
   const handleAddSingle = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -89,30 +90,22 @@ export default function HomePage() {
     }
 
     const turns = 5 + Math.random() * 4;
+    const slice = 360 / entries.length;
+    const winnerIndex = Math.floor(Math.random() * entries.length);
+    const pointerAngle = 0; // Pointer is positioned on the right side of the wheel (0° reference)
+    const winnerAngle = baseAngleOffset + (winnerIndex + 0.5) * slice;
     const additionalRotation = turns * 360;
-    const targetRotation = rotation - additionalRotation;
 
     setIsSpinning(true);
     setSelectedIndex(null);
     setShowWinnerModal(false);
-    setRotation(targetRotation);
+    setRotation((prevRotation) => prevRotation - additionalRotation + (pointerAngle - winnerAngle));
 
     const durationMs = 4500;
     window.setTimeout(() => {
-      // Normalizamos la rotación final
-      const normalizedRotation = ((targetRotation % 360) + 360) % 360;
-      
-      // El puntero está a la derecha (90 grados desde arriba, o 0 grados en términos de círculo)
-      // Necesitamos ver qué segmento está en la posición de 90 grados
-      // Como giramos en sentido antihorario (negativo), restamos la rotación
-      const pointerPosition = (90 - normalizedRotation + 360) % 360;
-      
-      const slice = 360 / entries.length;
-      const winner = Math.floor(pointerPosition / slice) % entries.length;
-      
-      setSelectedIndex(winner);
+      setSelectedIndex(winnerIndex);
       setIsSpinning(false);
-      
+
       setTimeout(() => {
         setShowWinnerModal(true);
       }, 500);
@@ -214,7 +207,7 @@ export default function HomePage() {
           >
             <div className="wheel-segments" aria-hidden>
               {entries.map((entry, index) => {
-                const centerAngle = index * sliceAngle + sliceAngle / 2;
+                const centerAngle = baseAngleOffset + index * sliceAngle + sliceAngle / 2;
                 return (
                   <div
                     key={entry}
