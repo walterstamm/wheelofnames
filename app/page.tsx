@@ -185,10 +185,7 @@ export default function HomePage() {
                     className="wheel-segment"
                     style={{ transform: `translate(-50%, -50%) rotate(${centerAngle}deg)` }}
                   >
-                    <span
-                      className="wheel-label"
-                      style={{ transform: `rotate(${-centerAngle}deg)` }}
-                    >
+                    <span className="wheel-label" style={{ transform: `rotate(${-centerAngle}deg)` }}>
                       {entry}
                     </span>
                   </div>
