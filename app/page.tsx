@@ -1,17 +1,8 @@
 "use client";
 
-import { CSSProperties, FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 
 const DEFAULT_NAMES = ["Alice", "Brandon", "Charlotte", "Dylan"];
-
-function getLabelFontSize(count: number): string {
-  if (count <= 4) return "1.35rem";
-  if (count <= 6) return "1.18rem";
-  if (count <= 10) return "1rem";
-  if (count <= 16) return "0.85rem";
-  if (count <= 24) return "0.72rem";
-  return "0.62rem";
-}
 
 function getSegmentColor(index: number): string {
   const hue = Math.round((index * 137.508) % 360);
@@ -184,35 +175,6 @@ export default function HomePage() {
               transform: `rotate(${rotation}deg)`
             }}
           >
-            {entries.length > 0 && (
-              <div className="wheel-labels" aria-hidden>
-                {entries.map((entry, index) => {
-                  const slice = 360 / entries.length;
-                  const baseRotation = -90 + index * slice + slice / 2;
-                  const normalized = ((baseRotation % 360) + 360) % 360;
-                  const shouldFlip = normalized > 90 && normalized < 270;
-                  const labelStyle = {
-                    "--label-angle": `${baseRotation}deg`
-                  } as CSSProperties;
-                  const labelFontSize = getLabelFontSize(entries.length);
-
-                  return (
-                    <span
-                      key={entry}
-                      className={shouldFlip ? "wheel-label wheel-label--flip" : "wheel-label"}
-                      style={labelStyle}
-                    >
-                      <span
-                        className="wheel-label-text"
-                        style={{ fontSize: labelFontSize }}
-                      >
-                        {entry}
-                      </span>
-                    </span>
-                  );
-                })}
-              </div>
-            )}
             <div className="wheel-center">Spin</div>
           </div>
         </div>
