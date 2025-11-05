@@ -184,13 +184,14 @@ button:not(:disabled):hover {
 
 .pointer {
   position: absolute;
-  top: -18px;
+  top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  width: 42px;
-  height: 32px;
-  background: #f97316;
-  clip-path: polygon(50% 100%, 0 0, 100% 0);
+  width: 0;
+  height: 0;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-bottom: 28px solid #f97316;
   filter: drop-shadow(0 2px 6px rgba(15, 23, 42, 0.6));
   z-index: 2;
 }
